@@ -15,17 +15,20 @@ dotenv.config({ path: fileURLToPath(new URL('.env', import.meta.url)) });
 const app = express();
 
 app.use(helmet());
+
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'https://mlm-investment-platform.vercel.app'
-    ],
+    origin: true,
     credentials: true
   })
 );
+
 app.use(express.json({ limit: '10kb' }));
-app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+app.use(
+  morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev')
+);
+
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -36,7 +39,10 @@ app.use(
 );
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.use('/api/auth', authRoutes);
@@ -45,26 +51,37 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/referrals', referralRoutes);
 
 app.use((req, res) => {
-  res.status(404).json({ message: `Route not found: ${req.originalUrl}` });
+  res.status(404).json({
+    message: `Route not found: ${req.originalUrl}`
+  });
 });
 
 app.use((error, req, res, next) => {
   const statusCode = error.statusCode || 500;
 
   if (error.code === 11000) {
-    return res.status(409).json({ message: 'Duplicate record detected' });
+    return res.status(409).json({
+      message: 'Duplicate record detected'
+    });
   }
 
   if (error.name === 'ValidationError') {
     const message = Object.values(error.errors)
       .map((item) => item.message)
       .join(', ');
-    return res.status(400).json({ message });
+
+    return res.status(400).json({
+      message
+    });
   }
 
   console.error(error);
+
   return res.status(statusCode).json({
-    message: statusCode === 500 ? 'Internal server error' : error.message
+    message:
+      statusCode === 500
+        ? 'Internal server error'
+        : error.message
   });
 });
 
