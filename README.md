@@ -1,146 +1,220 @@
 # MLM Investment Platform
 
-A complete MERN application for an MLM investment platform with JWT auth, investment plans, daily ROI generation, three-level referral income, dashboard aggregation, charts, and a recursive referral tree.
+A full-stack MERN (MongoDB, Express.js, React.js, Node.js) application that simulates an MLM-based investment platform with secure authentication, investment management, automated ROI generation, multi-level referral income distribution, and a real-time analytics dashboard.
 
-## Tech Stack
+##  Live Demo
 
-- Node.js, Express.js, MongoDB, Mongoose
-- JWT authentication, bcryptjs
-- node-cron for daily ROI
-- React.js, Axios, Recharts, Vite
+**Frontend:** https://mlm-investment-platform.vercel.app
 
-## Project Structure
+**Backend API:** https://mlm-backend-duh2.onrender.com/api/health
+
+##  Features
+
+### Authentication
+
+* Secure JWT-based authentication
+* User registration and login
+* Password hashing using bcryptjs
+* Protected API routes
+
+### Investment Management
+
+* Create investment plans
+* Multiple plan types:
+
+  * Silver (180 Days)
+  * Gold (240 Days)
+  * Platinum (365 Days)
+* Active investment tracking
+
+### ROI System
+
+* Automated daily ROI generation
+* 1% daily return on active investments
+* ROI history tracking
+* Idempotent cron execution
+
+### MLM Referral System
+
+* Unique referral code generation
+* Multi-level referral tree
+* Automatic commission distribution
+
+| Level   | Commission |
+| ------- | ---------- |
+| Level 1 | 10%        |
+| Level 2 | 5%         |
+| Level 3 | 2%         |
+
+### Dashboard
+
+* Total Investments
+* Daily ROI Earnings
+* Referral Income
+* Wallet Balance
+* Investment History
+* ROI Analytics Chart
+* Referral Tree Visualization
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+* React.js
+* Vite
+* Axios
+* Recharts
+* CSS3
+
+### Backend
+
+* Node.js
+* Express.js
+* MongoDB Atlas
+* Mongoose
+* JWT
+* bcryptjs
+* node-cron
+* Helmet
+* Express Rate Limit
+
+### Deployment
+
+* Frontend: Vercel
+* Backend: Render
+* Database: MongoDB Atlas
+
+---
+
+# 📂 Project Structure
 
 ```text
-backend/
-  config/db.js
-  models/User.js
-  models/Investment.js
-  models/ROIHistory.js
-  models/ReferralIncome.js
-  controllers/
-  middleware/
-  routes/
-  services/incomeService.js
-  cron/roiCron.js
-  app.js
-  server.js
-frontend/
-  src/api/api.js
-  src/pages/Dashboard.jsx
-  src/components/
-  src/App.jsx
-  src/main.jsx
+mlm-investment-platform/
+│
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── cron/
+│   ├── app.js
+│   └── server.js
+│
+├── frontend/
+│   ├── src/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── styles/
+│   │   └── App.jsx
+│   │
+│   └── vite.config.js
+│
+└── README.md
 ```
 
-## Setup
+##  Referral Workflow
 
-1. Install MongoDB locally and make sure it is running on `mongodb://127.0.0.1:27017`.
-2. Install dependencies from the project root:
+```text
+User A
+│
+├── User B (Level 1)
+│   ├── User D (Level 2)
+│   └── User E (Level 2)
+│
+└── User C (Level 1)
+```
+
+If User D invests ₹10,000:
+
+* User B earns ₹1,000 (10%)
+* User A earns ₹500 (5%)
+
+##  Business Rules
+
+### Daily ROI
+
+```text
+Daily ROI = Investment Amount × 1%
+```
+
+Example:
+
+```text
+₹10,000 Investment
+Daily ROI = ₹100
+```
+
+### Referral Income
+
+```text
+Level 1 = 10%
+Level 2 = 5%
+Level 3 = 2%
+```
+
+### ROI Conditions
+
+* Generated only for ACTIVE investments
+* One ROI entry per day per investment
+* Duplicate generation prevented
+
+## ⚙️ Local Setup
+
+### Clone Repository
+
+```bash
+git clone https://github.com/unseen-Programmer/mlm-investment-platform.git
+cd mlm-investment-platform
+```
+
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-3. Start backend and frontend together:
-
-```bash
-npm run dev
-```
-
-The API runs on `http://localhost:5000` and the React app runs on `http://localhost:5173`.
-
-## Environment Variables
-
-Backend: [backend/.env](backend/.env)
+### Backend Environment
 
 ```env
 PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/mlm-investment
-JWT_SECRET=mlm-local-dev-secret-please-change-in-production-2026
+MONGO_URI=YOUR_MONGODB_URI
+JWT_SECRET=YOUR_SECRET_KEY
 JWT_EXPIRES_IN=7d
-FRONTEND_URL=http://localhost:5173
 ENABLE_CRON=true
 ```
 
-Frontend: [frontend/.env](frontend/.env)
+### Frontend Environment
 
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
-Use a long random `JWT_SECRET` in production and restrict `FRONTEND_URL` to your deployed frontend origin.
-
-## Business Rules
-
-- Daily ROI is `1%` of active investment amount.
-- ROI is generated only for `ACTIVE` investments.
-- ROI generation is idempotent via a unique index on `investment + date`.
-- Referral income is generated when an investment is created:
-  - Level 1: `10%`
-  - Level 2: `5%`
-  - Level 3: `2%`
-- Referral income records are unique per `fromUser + toUser + investment + level`.
-
-## API Examples
-
-Register:
+### Run Development Server
 
 ```bash
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d "{\"name\":\"Alice\",\"email\":\"alice@example.com\",\"password\":\"secret123\"}"
+npm run dev
 ```
 
-Register with referral:
+Backend:
+http://localhost:5000
 
-```bash
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d "{\"name\":\"Bob\",\"email\":\"bob@example.com\",\"password\":\"secret123\",\"referralCode\":\"MLMABC123\"}"
-```
+Frontend:
+http://localhost:5173
 
-Login:
+---
 
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{\"email\":\"alice@example.com\",\"password\":\"secret123\"}"
-```
+##  Security Features
 
-Create investment:
+* JWT Authentication
+* Password Hashing (bcryptjs)
+* Helmet Security Headers
+* API Rate Limiting
+* Protected Routes
+* Environment Variable Management
 
-```bash
-curl -X POST http://localhost:5000/api/investments \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d "{\"amount\":10000,\"plan\":\"Silver\"}"
-```
 
-Dashboard:
+---
 
-```bash
-curl http://localhost:5000/api/dashboard \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-Referral tree:
-
-```bash
-curl http://localhost:5000/api/referrals/tree \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-## Plans
-
-- Silver: 180 days
-- Gold: 240 days
-- Platinum: 365 days
-
-## Production Notes
-
-- Set `NODE_ENV=production`.
-- Use MongoDB Atlas or a managed MongoDB deployment.
-- Rotate `JWT_SECRET` and keep it outside source control.
-- Run the backend behind HTTPS and a reverse proxy.
-- Keep cron enabled on only one backend instance, or move ROI generation to a dedicated worker.
